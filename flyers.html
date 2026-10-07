@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cambridge A2 Flyers｜小學核心英文單字練習</title>
+<style>
+:root{--ink:#26354a;--muted:#718096;--blue:#5d8fe8;--blue2:#eaf1ff;--mint:#e3f5ee;--cream:#fff7df;--yellow:#ffd66b;--green:#48ae86;--red:#df7777;--line:#dfe7ef;--bg:#f4f8f7}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#edf6f3,#f9fbfc);color:var(--ink);font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif}
+header{position:sticky;top:0;z-index:10;background:rgba(244,248,247,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.wrap{max-width:1120px;margin:auto;padding:18px 20px}
+.brand{display:flex;justify-content:space-between;gap:14px;align-items:center}
+h1{margin:0;font-size:clamp(22px,4vw,34px)}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 11px;font-size:12px;font-weight:800}
+.tabs{display:flex;gap:8px;overflow:auto;margin-top:12px;padding-bottom:2px}
+.tab{border:0;border-radius:12px;padding:9px 13px;background:#e8eef5;color:var(--ink);font-weight:900;white-space:nowrap;cursor:pointer}
+.tab.active{background:var(--blue);color:#fff}
+main{max-width:1120px;margin:auto;padding:22px 20px 60px}
+.intro{background:var(--cream);border:1px solid #efdda0;border-radius:18px;padding:14px 16px;line-height:1.65;font-size:14px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}
+.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+.primary{background:var(--blue);color:#fff}
+.section{margin-top:28px}
+.section-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:10px;gap:10px}
+.section-title{font-size:21px;font-weight:900}
+.count{font-size:12px;color:var(--muted);font-weight:800}
+.words{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.word-row{display:grid;grid-template-columns:28px minmax(130px,1fr) 42px minmax(140px,1.2fr) 42px;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:15px;padding:11px 12px;box-shadow:0 3px 10px rgba(49,68,87,.05);transition:.16s}
+.word-row:hover{transform:translateY(-1px);box-shadow:0 7px 18px rgba(49,68,87,.09)}
+.star{font-size:18px;color:#e0b52c;text-align:center;visibility:hidden}
+.important .star{visibility:visible}
+.word{font-size:19px;font-weight:900;overflow-wrap:anywhere}
+.source{font-size:11px;color:#a1aab5;margin-top:2px}
+.speak,.check{width:40px;height:40px;border:0;border-radius:12px;cursor:pointer;font-size:18px;font-weight:900}
+.speak{background:var(--blue2);color:#315da8}
+.check{background:#edf2f6;color:#657489}
+.check.correct{background:#ddf4e7;color:#21865f}
+.check.wrong{background:#ffe1e1;color:#c34c4c}
+.answer{height:42px;border:2px solid #d7e0e8;border-radius:11px;padding:0 10px;font-size:16px;outline:none}
+.answer:focus{border-color:#8db0f2;box-shadow:0 0 0 3px rgba(93,143,232,.12)}
+.status{grid-column:2/-1;font-size:12px;font-weight:800;min-height:17px}
+.status.correct{color:#21865f}
+.status.wrong{color:#c34c4c}
+.note-box{margin-top:10px;background:#f7fafc;border:1px solid var(--line);border-radius:14px;padding:10px 12px;color:#5f6f82;font-size:13px;line-height:1.7}
+.note-box strong{color:#3e5067}
+@media(max-width:760px){.words{grid-template-columns:1fr}.word{font-size:18px}}
+@media(max-width:500px){
+  .word-row{grid-template-columns:24px 1fr 42px 42px}
+  .answer{grid-column:2/4;grid-row:2}
+  .check{grid-column:4;grid-row:2}
+  .status{grid-column:2/-1;grid-row:3}
+}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="brand">
+    <div><h1>📚 Cambridge A2 Flyers 小學核心英文單字</h1></div>
+  </div>
+  <div class="stats">
+    <span class="pill" id="total"></span>
+    <span class="pill" id="score">已答對 0 題</span>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</div></header>
+
+<main>
+  <div class="intro"><strong>玩法：</strong>先按 🔊 聽英文，再輸入中文意思。</div>
+  <div class="actions"><button class="btn primary" id="reset">↻ 清除本區答案</button></div>
+  <div id="app"></div>
+</main>
+
+<script>
+const WORDS=[{"category": "食物、點心與用餐", "part": "", "word": "meal", "meaning": "一餐;便餐", "star": true}, {"category": "食物、點心與用餐", "part": "", "word": "biscuit", "meaning": "餅乾 ( 英 / 美 )", "star": true}, {"category": "食物、點心與用餐", "part": "", "word": "cookie", "meaning": "餅乾 ( 英 / 美 )", "star": true}, {"category": "食物、點心與用餐", "part": "", "word": "butter", "meaning": "奶油", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "cereal", "meaning": "穀片、麥片", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "chopsticks", "meaning": "筷子", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "delicious", "meaning": "美味好吃的", "star": true}, {"category": "食物、點心與用餐", "part": "", "word": "flour", "meaning": "麵粉", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "fork", "meaning": "叉子", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "honey", "meaning": "蜂蜜", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "jam", "meaning": "果醬", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "knife", "meaning": "刀子 ( 複數 knives)", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "olives", "meaning": "橄欖", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "oven", "meaning": "烤箱", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "pepper", "meaning": "胡椒粉;甜椒", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "piece", "meaning": "一片、一塊", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "pizza", "meaning": "披薩", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "salt", "meaning": "食鹽", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "snack", "meaning": "點心;小吃", "star": true}, {"category": "食物、點心與用餐", "part": "", "word": "spoon", "meaning": "湯匙", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "sugar", "meaning": "糖", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "taste", "meaning": "品嚐;味道", "star": false}, {"category": "食物、點心與用餐", "part": "", "word": "yoghurt", "meaning": "優格", "star": false}, {"category": "材質、衣著與配件", "part": "", "word": "belt", "meaning": "皮帶、腰帶", "star": true}, {"category": "材質、衣著與配件", "part": "", "word": "bracelet", "meaning": "手鍊、手鐲", "star": false}, {"category": "材質、衣著與配件", "part": "", "word": "card", "meaning": "厚紙板;卡片", "star": true}, {"category": "材質、衣著與配件", "part": "", "word": "costume", "meaning": "戲服、扮裝服", "star": false}, {"category": "材質、衣著與配件", "part": "", "word": "crown", "meaning": "皇冠", "star": true}, {"category": "材質、衣著與配件", "part": "", "word": "cushion", "meaning": "靠墊、坐墊", "star": false}, {"category": "材質、衣著與配件", "part": "", "word": "fur", "meaning": "毛皮", "star": true}, {"category": "材質、衣著與配件", "part": "", "word": "furry", "meaning": "毛茸茸的", "star": true}, {"category": "材質、衣著與配件", "part": "", "word": "glass", "meaning": "玻璃;玻璃製的", "star": true}, {"category": "材質、衣著與配件", "part": "", "word": "glove", "meaning": "手套", "star": false}, {"category": "材質、衣著與配件", "part": "", "word": "gold", "meaning": "金子;金黃色的", "star": true}, {"category": "材質、衣著與配件", "part": "", "word": "metal", "meaning": "金屬;金屬製的", "star": true}, {"category": "材質、衣著與配件", "part": "", "word": "necklace", "meaning": "項鍊", "star": false}, {"category": "材質、衣著與配件", "part": "", "word": "plastic", "meaning": "塑膠;塑膠製的", "star": false}, {"category": "材質、衣著與配件", "part": "", "word": "pyjamas", "meaning": "睡衣褲", "star": false}, {"category": "材質、衣著與配件", "part": "", "word": "ring", "meaning": "戒指;環狀物", "star": false}, {"category": "材質、衣著與配件", "part": "", "word": "silver", "meaning": "銀;銀製的", "star": true}, {"category": "材質、衣著與配件", "part": "", "word": "spot", "meaning": "斑點", "star": true}, {"category": "材質、衣著與配件", "part": "", "word": "spotted", "meaning": "斑點花紋的", "star": true}, {"category": "材質、衣著與配件", "part": "", "word": "stripe", "meaning": "線條", "star": true}, {"category": "材質、衣著與配件", "part": "", "word": "striped", "meaning": "條紋花樣的", "star": true}, {"category": "材質、衣著與配件", "part": "", "word": "sunglasses", "meaning": "太陽眼鏡", "star": false}, {"category": "材質、衣著與配件", "part": "", "word": "tights", "meaning": "緊身連褲襪", "star": false}, {"category": "材質、衣著與配件", "part": "", "word": "trainers", "meaning": "運動鞋", "star": false}, {"category": "材質、衣著與配件", "part": "", "word": "uniform", "meaning": "制服", "star": false}, {"category": "材質、衣著與配件", "part": "", "word": "wood", "meaning": "木頭", "star": true}, {"category": "材質、衣著與配件", "part": "", "word": "wool", "meaning": "羊毛", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "actor", "meaning": "演員", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "artist", "meaning": "藝術家、畫家", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "astronaut", "meaning": "太空人", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "businessman", "meaning": "商人、企業家", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "woman", "meaning": "商人、企業家", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "chemist('s)", "meaning": "藥局;藥劑師", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "college", "meaning": "學院", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "university", "meaning": "大學", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "dentist", "meaning": "牙醫", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "designer", "meaning": "設計師", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "engineer", "meaning": "工程師", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "factory", "meaning": "工廠", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "fire fighter", "meaning": "消防隊員", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "fire engine", "meaning": "消防車", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "station", "meaning": "消防局", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "footballer", "meaning": "足球選手", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "journalist", "meaning": "新聞記者", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "king", "meaning": "國王", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "queen", "meaning": "女王、皇后", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "manager", "meaning": "經理、管理者", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "mechanic", "meaning": "機械工、技工", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "photographer", "meaning": "攝影師", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "pilot", "meaning": "飛行員", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "police officer", "meaning": "警察", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "station", "meaning": "警察局", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "post office", "meaning": "郵局", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "secretary", "meaning": "秘書", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "職業與城鎮場所", "word": "waiter", "meaning": "服務生、侍者", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "adventure", "meaning": "冒險、奇遇", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "bridge", "meaning": "橋樑", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "castle", "meaning": "城堡", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "cave", "meaning": "山洞、洞穴", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "desert", "meaning": "沙漠", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "environment", "meaning": "自然環境", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "entrance", "meaning": "入口", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "exit", "meaning": "出口", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "gate", "meaning": "大門、柵門", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "hotel", "meaning": "飯店、旅館", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "journey", "meaning": "旅程、旅行", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "motorway", "meaning": "高速公路", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "ocean", "meaning": "海洋、大海", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "passenger", "meaning": "乘客、旅客", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "path", "meaning": "小徑、小路", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "platform", "meaning": "月台;講台", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "pond", "meaning": "池塘", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "stream", "meaning": "小溪流", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "pyramid", "meaning": "金字塔", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "railway", "meaning": "鐵路", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "rocket", "meaning": "火箭", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "spaceship", "meaning": "太空船", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "suitcase", "meaning": "手提行李箱", "star": true}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "tent", "meaning": "帳篷", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "tour", "meaning": "導覽觀光", "star": false}, {"category": "職業、城鎮機構與自然探險", "part": "旅行探險與大自然環境", "word": "traffic", "meaning": "交通交通量", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "calendar", "meaning": "日曆;月曆", "star": true}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "cartoon", "meaning": "卡通片", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "channel", "meaning": "電視頻道", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "chess", "meaning": "西洋棋", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "competition", "meaning": "比賽、競爭", "star": true}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "concert", "meaning": "音樂會、演唱會", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "dictionary", "meaning": "字典", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "drum", "meaning": "鼓", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "violin", "meaning": "小提琴", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "festival", "meaning": "節日、慶典活動", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "golf", "meaning": "高爾夫球", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "volleyball", "meaning": "排球", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "instrument", "meaning": "樂器;工具", "star": true}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "magazine", "meaning": "雜誌", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "newspaper", "meaning": "報紙", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "match", "meaning": "比賽", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "prize", "meaning": "獎品獎項", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "stage", "meaning": "舞台", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "sledge", "meaning": "雪橇", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "ski", "meaning": "滑雪", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "beetle", "meaning": "甲蟲", "star": true}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "butterfly", "meaning": "蝴蝶", "star": true}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "camel", "meaning": "駱駝", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "swan", "meaning": "天鵝", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "creature", "meaning": "生物", "star": true}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "dinosaur", "meaning": "恐龍", "star": true}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "eagle", "meaning": "老鷹", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "octopus", "meaning": "章魚", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "extinct", "meaning": "絕種滅絕的", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "insect", "meaning": "昆蟲", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "wing", "meaning": "翅膀", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "學校、休閒與動物", "word": "tortoise", "meaning": "陸龜", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "bandage", "meaning": "繃帶", "star": true}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "x-ray", "meaning": "X 光片", "star": true}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "medicine", "meaning": "藥品", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "sore", "meaning": "痠痛的、疼痛的", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "borrow", "meaning": "借入 ( 向人借 )", "star": true}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "disappear", "meaning": "消失不見", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "explore", "meaning": "探索、探險", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "fetch", "meaning": "拿來、取來", "star": true}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "hurry", "meaning": "匆忙、趕快", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "improve", "meaning": "進步、改善", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "look after", "meaning": "照顧、照料", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "repair", "meaning": "修理、修補", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "whisper", "meaning": "低語、小聲耳語", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "whistle", "meaning": "吹口哨;哨子", "star": true}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "brave", "meaning": "勇敢的", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "enormous", "meaning": "巨大的、龐大的", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "frightening", "meaning": "令人害怕的", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "heavy", "meaning": "重的", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "light", "meaning": "輕的;明亮的", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "horrible", "meaning": "糟糕的", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "lovely", "meaning": "討人喜歡的", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "strange", "meaning": "奇怪的", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "unusual", "meaning": "不尋常的", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "midday", "meaning": "正午 ( 中午 12 點 )", "star": true}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "midnight", "meaning": "半夜", "star": true}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "quarter past", "meaning": "過一刻 (15 分 )", "star": false}, {"category": "學校學習、娛樂運動與常考描述詞", "part": "關鍵動作、形容詞與時間", "word": "to", "meaning": "差一刻", "star": false}, {"category": "未分類", "part": "方向方位", "word": "North", "meaning": "北", "star": false}, {"category": "未分類", "part": "方向方位", "word": "South", "meaning": "南", "star": false}, {"category": "未分類", "part": "方向方位", "word": "East", "meaning": "東", "star": false}, {"category": "未分類", "part": "方向方位", "word": "West", "meaning": "西", "star": false}, {"category": "未分類", "part": "方向方位", "word": "turn left", "meaning": "向左轉", "star": false}, {"category": "未分類", "part": "方向方位", "word": "turn right", "meaning": "向右轉", "star": false}, {"category": "未分類", "part": "方向方位", "word": "straight on", "meaning": "直走向前", "star": false}, {"category": "未分類", "part": "度量衡單位", "word": "centimetre (cm)", "meaning": "公分", "star": false}, {"category": "未分類", "part": "度量衡單位", "word": "metre (m)", "meaning": "公尺", "star": false}, {"category": "未分類", "part": "度量衡單位", "word": "kilometre (km)", "meaning": "公里", "star": false}];
+const NAMES="Betty、David、Emma、George、Harry、Helen、Holly、Katy、Michael、Richard、Robert、Sarah、William";
+const NUMBER_NOTE="數字要求：101–1,000 基數與 21st–31st 序數";
+
+let active="";
+let correct=0;
+const done=new Set();
+
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const norm=s=>(s||"").toLowerCase()
+  .replace(/[（）()【】\[\]；;、，,。.!！?？\s]/g,"")
+  .replace(/的$/,"");
+
+function okAnswer(user,meaning){
+  const u=norm(user);
+  if(!u)return false;
+  const parts=meaning.split(/[；/、]/).map(norm).filter(Boolean);
+  if(parts.some(p=>u===p||u.includes(p)||p.includes(u)))return true;
+  return parts.some(p=>u.length>=2 && [...new Set(u)].filter(c=>p.includes(c)).length/Math.min(u.length,p.length)>=.75);
+}
+
+let voiceIndex=0;
+function getEnglishVoices(){
+  if(!("speechSynthesis" in window)) return [];
+  const voices=speechSynthesis.getVoices();
+  const gb=voices.filter(v=>/^en-GB/i.test(v.lang));
+  const en=voices.filter(v=>/^en(-|$)/i.test(v.lang));
+  return gb.length?gb:en;
+}
+
+function speak(word){
+  if(!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const text=String(word||"").trim();
+  const voices=getEnglishVoices();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang="en-GB";
+  u.rate=.72;
+  u.pitch=1.0;
+  if(voices.length){
+    u.voice=voices[voiceIndex % voices.length];
+    voiceIndex++;
+  }
+  speechSynthesis.speak(u);
+}
+if("speechSynthesis" in window){
+  speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();
+}
+
+// 只保留答題提示音，不再建立或播放任何背景音樂。
+let audioCtx=null;
+let effectBus=null;
+function ensureEffects(){
+  if(!audioCtx){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return false;
+    audioCtx=new AC();
+    effectBus=audioCtx.createGain();
+    effectBus.gain.value=.12;
+    effectBus.connect(audioCtx.destination);
+  }
+  if(audioCtx.state==="suspended") audioCtx.resume().catch(()=>{});
+  return true;
+}
+function playCorrectSound(){
+  if(!ensureEffects())return;
+  const now=audioCtx.currentTime;
+  [784,988,1175].forEach((freq,i)=>{
+    const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();
+    osc.type="sine";osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0,now+i*.07);
+    gain.gain.linearRampToValueAtTime(.18,now+i*.07+.012);
+    gain.gain.exponentialRampToValueAtTime(.001,now+i*.07+.22);
+    osc.connect(gain);gain.connect(effectBus);
+    osc.start(now+i*.07);osc.stop(now+i*.07+.24);
+  });
+}
+function playWrongSound(){
+  if(!ensureEffects())return;
+  const now=audioCtx.currentTime;
+  const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();
+  osc.type="triangle";
+  osc.frequency.setValueAtTime(260,now);
+  osc.frequency.exponentialRampToValueAtTime(150,now+.24);
+  gain.gain.setValueAtTime(.16,now);
+  gain.gain.exponentialRampToValueAtTime(.001,now+.28);
+  osc.connect(gain);gain.connect(effectBus);
+  osc.start(now);osc.stop(now+.3);
+}
+
+function getCats(){return [...new Set(WORDS.map(x=>x.category))]}
+
+function tabs(){
+  document.getElementById("tabs").innerHTML=getCats().map(x=>
+    `<button class="tab ${active===x?"active":""}" data-v="${esc(x)}">${esc(x)}</button>`
+  ).join("");
+  document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
+    active=b.dataset.v;
+    tabs();
+    render();
+  });
+}
+
+function row(w,idx){
+  return `<div class="word-row ${w.star?"important":""}" data-i="${idx}">
+    <div class="star">★</div>
+    <div><div class="word">${esc(w.word)}</div><div class="source">${esc(w.part)}</div></div>
+    <button class="speak" title="播放發音" aria-label="播放 ${esc(w.word)} 的發音">🔊</button>
+    <input class="answer" placeholder="輸入中文意思" autocomplete="off">
+    <button class="check" aria-label="檢查答案">✓</button>
+    <div class="status"></div>
+  </div>`;
+}
+
+function render(){
+  const list=WORDS.filter(x=>x && String(x.word||"").trim() && (!active || x.category===active));
+  const groups=[];
+  list.forEach(w=>{
+    let g=groups.find(x=>x.part===w.part);
+    if(!g){g={part:w.part,items:[]};groups.push(g);}
+    g.items.push(w);
+  });
+
+  let out=groups.map(g=>{
+    const title=g.part || active;
+    return `<section class="section">
+      <div class="section-head">
+        <div class="section-title">${esc(title)}</div>
+        <div class="count">${g.items.length} 個單字</div>
+      </div>
+      <div class="words">${g.items.map(w=>row(w,WORDS.indexOf(w))).join("")}</div>
+    </section>`;
+  }).join("");
+
+  if(active==="未分類"){
+    out += `<div class="note-box">
+      <strong>📌 來源檔案中的其他考題資料：</strong><br>
+      常考姓名：${esc(NAMES)}<br>
+      ${esc(NUMBER_NOTE)}
+    </div>`;
+  }
+
+  document.getElementById("app").innerHTML=out;
+
+  document.querySelectorAll(".word-row").forEach(r=>{
+    const w=WORDS[+r.dataset.i];
+    const input=r.querySelector(".answer");
+    const check=r.querySelector(".check");
+    const status=r.querySelector(".status");
+
+    r.querySelector(".speak").onclick=()=>speak(w.word);
+
+    const verify=()=>{
+      const yes=okAnswer(input.value,w.meaning);
+      check.className="check "+(yes?"correct":"wrong");
+      check.textContent=yes?"✓":"✕";
+      status.className="status "+(yes?"correct":"wrong");
+      status.textContent=yes?"答對了！":"再想一下，可以再聽一次發音。";
+
+      if(yes){
+        playCorrectSound();
+        if(!done.has(+r.dataset.i)){
+          done.add(+r.dataset.i);
+          correct++;
+          document.getElementById("score").textContent=`已答對 ${correct} 題`;
+        }
+      }else{
+        playWrongSound();
+      }
+    };
+
+    check.onclick=verify;
+    input.onkeydown=e=>{if(e.key==="Enter")verify();};
+  });
+}
+
+document.getElementById("total").textContent=`共 ${WORDS.length} 個單字／片語`;
+document.getElementById("reset").onclick=()=>{
+  correct=0;
+  done.clear();
+  document.getElementById("score").textContent="已答對 0 題";
+  render();
+};
+
+active=getCats()[0]||"";
+tabs();
+render();
+</script>
+</body>
+</html>
