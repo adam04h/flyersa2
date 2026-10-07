@@ -38,7 +38,7 @@ main{max-width:1120px;margin:auto;padding:22px 20px 60px}
 .check{background:#edf2f6;color:#657489}
 .check.correct{background:#ddf4e7;color:#21865f}
 .check.wrong{background:#ffe1e1;color:#c34c4c}
-.english-answer{height:42px;width:100%;border:2px solid #8db0f2;border-radius:11px;padding:0 10px;font-size:16px;outline:none;background:#f8fbff}.english-answer:focus{border-color:#5d8fe8;box-shadow:0 0 0 3px rgba(93,143,232,.12)}.english-answer.english-done{background:#ddf4e7;border-color:#9bd4b9}.answer.zh-done{background:#edf8f2;border-color:#b8dfc8;color:#21865f}.word-area{min-width:0}.word-area .source{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.word{user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;-webkit-touch-callout:none;cursor:default;letter-spacing:.5px}.blank-word{font-size:19px;font-weight:900;letter-spacing:2px;white-space:pre-wrap;overflow-wrap:anywhere}.answer{min-width:0}
+.english-answer{height:42px;width:100%;border:2px solid #8db0f2;border-radius:11px;padding:0 10px;font-size:16px;outline:none;background:#f8fbff}.english-answer:focus{border-color:#5d8fe8;box-shadow:0 0 0 3px rgba(93,143,232,.12)}.english-answer.english-done{background:#ddf4e7;border-color:#9bd4b9}.answer.zh-done{background:#edf8f2;border-color:#b8dfc8;color:#21865f}.word-area{min-width:0}.word-area .source{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.word{user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;-webkit-touch-callout:none;cursor:default;letter-spacing:.5px}.blank-word{font-size:19px;font-weight:900;letter-spacing:2px;white-space:pre-wrap;overflow-wrap:anywhere}.revealed-letter{color:#d94f4f;font-weight:1000}.answer{min-width:0}
 .answer{height:42px;border:2px solid #d7e0e8;border-radius:11px;padding:0 10px;font-size:16px;outline:none}
 .answer:focus{border-color:#8db0f2;box-shadow:0 0 0 3px rgba(93,143,232,.12)}
 .status{grid-column:2/-1;font-size:12px;font-weight:800;min-height:17px}
@@ -121,6 +121,24 @@ function makeBlankWord(word,idx){
  }
  const masked=[...main].map((ch,i)=>hidden.has(i)?"_":ch).join("");
  return masked+suffix;
+}
+
+function makeRevealedWord(word,idx){
+  const source=String(word||"");
+  if(source==="centimetre(cm)") return 'c<span class="revealed-letter">e</span>n<span class="revealed-letter">t</span>i<span class="revealed-letter">m</span>e<span class="revealed-letter">t</span>r<span class="revealed-letter">e</span>(cm)';
+  if(source==="kilometre(km)") return 'k<span class="revealed-letter">i</span>l<span class="revealed-letter">o</span>m<span class="revealed-letter">e</span>t<span class="revealed-letter">r</span>e(km)';
+  const parenStart=source.indexOf("(");
+  const main=parenStart>=0?source.slice(0,parenStart):source;
+  const suffix=parenStart>=0?source.slice(parenStart):"";
+  const positions=[];
+  for(let i=0;i<main.length;i++) if(/[A-Za-z]/.test(main[i])) positions.push(i);
+  const n=Math.min(blankCount(main),positions.length);
+  const hidden=new Set();
+  for(let k=0;k<n;k++){
+    const pos=Math.floor((k+1)*positions.length/(n+1));
+    hidden.add(positions[Math.min(pos,positions.length-1)]);
+  }
+  return [...main].map((ch,i)=>hidden.has(i)?`<span class="revealed-letter">${esc(ch)}</span>`:esc(ch)).join("")+esc(suffix);
 }
 
 let voiceIndex=0;
@@ -219,7 +237,7 @@ function tabs(){
 
 function row(w,idx){
  const blank=makeBlankWord(w.word,idx);
- return `<div class="word-row ${w.star?"important":""}" data-i="${idx}" data-stage="answer">
+ return `<div class="word-row ${w.star?"important":""}" data-i="${idx}" data-stage="answer" data-wrong="0">
    <div class="star">★</div>
    <div class="word-area"><div class="word blank-word">${esc(blank)}</div><div class="source">${esc(w.part)}</div></div>
    <button class="speak" title="播放發音" aria-label="播放英文發音">🔊</button>
@@ -249,9 +267,16 @@ function render(){
        playCorrectSound();
        if(!done.has(+r.dataset.i)){done.add(+r.dataset.i);correct++;}
      }else{
+       const wrongCount=(+r.dataset.wrong||0)+1;
+       r.dataset.wrong=String(wrongCount);
        check.className="check wrong"; check.textContent="✕";
-       status.className="status wrong"; status.textContent="再試一次！💪 也可以按 🔊 再聽一次。";
        playWrongSound();
+       if(wrongCount>=2){
+         wordEl.innerHTML=makeRevealedWord(w.word,+r.dataset.i);
+         status.className="status wrong"; status.textContent="答錯兩次了！正確字母已用紅色提示，再試一次。";
+       }else{
+         status.className="status wrong"; status.textContent="再試一次！💪 也可以按 🔊 再聽一次。";
+       }
      }
    };
    check.onclick=verify;
