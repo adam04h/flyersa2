@@ -1,0 +1,26 @@
+{
+  "name": "Cambridge A2 Flyers 小學核心英文單字練習",
+  "short_name": "A2 Flyers",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f8f7",
+  "theme_color": "#5d8fe8",
+  "description": "Cambridge A2 Flyers 小學核心英文單字練習",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
